@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAIChatStream } from 'next-ai-stream/client';
 import { Role } from '@prisma/client';
 import type { Chat } from '@prisma/client';
@@ -14,6 +14,7 @@ type ChatWithMessages = Chat & {
 };
 
 const Chat = ({ item }: { item?: ChatWithMessages }) => {
+  const lastSavedAssistantMessageRef = useRef<string | null>(null);
   const [inputText, setInputText] = useState('');
   const [chatId, setChatId] = useState<string | null>(item?.id || null);
   const [hasSentMessage, setHasSentMessage] = useState(false);
@@ -29,11 +30,16 @@ const Chat = ({ item }: { item?: ChatWithMessages }) => {
     systemPrompt: `You are a helpful AI assistant. Be very succinct in your responses because I don't want drop all my cash on tokens.`,
   });
 
+  const saveAnswer = async (message: { role: 'assistant' | 'user'; content: string }) => {
+    if (message?.role === 'assistant' && lastSavedAssistantMessageRef.current !== message.content) {
+      await addMessage(Role.ASSISTANT, message.content as string, chatId);
+      lastSavedAssistantMessageRef.current = message.content;
+    }
+  };
+
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === 'assistant') {
-      addMessage(Role.ASSISTANT, lastMessage.content as string, chatId);
-    }
+    saveAnswer(lastMessage);
   }, [messages]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
