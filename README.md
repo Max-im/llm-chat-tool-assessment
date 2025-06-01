@@ -13,7 +13,7 @@ This is a minimal full-stack chat application built with **Next.js App Router**,
 
 ## 🚀 Live Demo
 
-[https://your-vercel-deployment-url.vercel.app/chat](https://your-vercel-deployment-url.vercel.app/chat)
+[https://llm-chat-tool-assessment.vercel.app/chat](https://llm-chat-tool-assessment.vercel.app/chat)
 
 ---
 
@@ -35,5 +35,18 @@ cd llm-chat-tool-assessment
 ```
 
 2. **Make up `.env.local` file from `env.local.sample`, put your own openai api key**
+3. **Install dependencies `npm install`**
+4. **Set up Prisma**
 
-3. **Run `npm run dev`**
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+If you're using a different database than SQLite, update DATABASE_URL in .env.local.
+
+3. **Start the development server**
+
+```bash
+npm run dev
+```
